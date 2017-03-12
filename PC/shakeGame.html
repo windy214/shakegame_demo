@@ -1,0 +1,548 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="../Com/Js/Com_veioo2015.js" type="text/javascript"></script>
+    <style type="text/css">
+        /*初始化*/
+        body, div, dl, dt, dd, ul, ol, li, form, input, button, textarea, p, th, td, canvas
+        {
+            margin: 0;
+            padding: 0;
+        }
+        body
+        {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-image: url(Img/wall_bg.jpg);
+        }
+        li
+        {
+            list-style: none;
+        }
+        #mask
+        {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #mask_bg
+        {
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            filter: alpha(opacity=50);
+            -moz-opacity: 0.5;
+            opacity: 0.5;
+            z-index: 999;
+        }
+        #mask p
+        {
+            position: absolute;
+            width: 1400px;
+            height: 300px;
+            left: 50%;
+            top: 50%;
+            margin-left: -700px;
+            margin-top: -150px;
+            font-family: "黑体";
+            font-size: 300px;
+            color: #FFFFFF;
+            line-height: 300px;
+            text-align: center;
+            z-index: 1000;
+        }
+        #title
+        {
+            position: absolute;
+            top: 120px;
+            left: 100px;
+        }
+        #title p
+        {
+            float: left;
+            margin-top: 14px;
+            font-family: "微软雅黑";
+            font-size: 30px;
+            color: #FFFFFF;
+            line-height: 30px;
+        }
+        #title img
+        {
+            float: left;
+            margin-left: 20px;
+        }
+        
+        #background
+        {
+            position: absolute;
+            left: 20px;
+            /* left: 0px; */
+            top: 100px;
+            z-index: -9999;
+            background-image: url(Img/背景图.jpg);
+        }
+        
+        #arena
+        {
+            position: absolute;
+            left: 20px;
+            top: 100px;
+            z-index: -500;
+        }
+        
+        .typeA
+        {
+            position: relative;
+            background-color: rgb(0, 121, 215);
+        }
+        
+        .typeB
+        {
+            position: relative;
+            background-color: rgb(36, 163, 232);
+        }
+        
+        #bottonStart, #bottonStop
+        {
+            position: absolute;
+            right: 460px;
+            top: 120px;
+            background-color: #DA6D57;
+            width: 60px;
+            height: 40px;
+            border-radius: 5px;
+            font-family: "微软雅黑";
+            color: #ffffff;
+            line-height: 40px;
+            text-align: center;
+        }
+        
+        #bottonStart, #bottonStop:hover
+        {
+            cursor: pointer;
+        }
+        
+        #bottonStop
+        {
+            right: 360px;
+        }
+        
+        #ranking
+        {
+            position: absolute;
+            right: 0;
+            top: 100;
+            width: 300px;
+            height: 894px;
+            z-index: -1;
+        }
+        #rankingHead
+        {
+            margin: 22px auto 0 auto;
+            font-family: "微软雅黑";
+            font-size: 28px;
+            color: #FFFFFF;
+            text-align: center;
+        }
+        #rankingList
+        {
+            width: 100%;
+            height: 820px;
+        }
+        .rankingListItem
+        {
+            height: 40px;
+            margin-top: 15px;
+        }
+        .rankingListItem i
+        {
+            display: block;
+            float: left;
+            margin-top: 5px;
+            margin-left: 22px;
+            box-sizing: border-box;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #d77663;
+            background-color: #97483e;
+            border-radius: 15px;
+            -moz-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            line-height: 28px;
+            text-align: center;
+            font-family: "黑体";
+            font-size: 18px;
+            color: #FFFFFF;
+            font-style: normal;
+        }
+        .rankingListItem img
+        {
+            box-sizing: border-box;
+            float: left;
+            margin-left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+        }
+        .rankingListItem p
+        {
+            display: block;
+            float: left;
+            margin-left: 20px; /*height: 24px;*/
+            font-family: "微软雅黑";
+            color: #FFFFFF;
+            line-height: 40px;
+            width: 168px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="mask">
+        <div id="mask_bg">
+        </div>
+        <p id="time_count">
+            10</p>
+    </div>
+    <div id="title">
+        <p>
+            江铃4S店摇一摇</p>
+        <img src="Img/摇一摇图标.png" />
+    </div>
+    <!--背景图片-->
+    <canvas id="background" width="1920" height="894"></canvas>
+    <!--<p>要使用的图片:</p>-->
+    <img id="scream1" src="Img/1黄车.png" style="display: none;">
+    <img id="scream2" src="Img/2绿车.png" style="display: none;">
+    <img id="scream3" src="Img/3橙车.png" style="display: none;">
+    <img id="scream4" src="Img/4紫车.png" style="display: none;">
+    <img id="scream5" src="Img/5红车.png" style="display: none;">
+    <img id="scream6" src="Img/6靛车.png" style="display: none;">
+    <img id="scream7" src="Img/7粉车.png" style="display: none;">
+    <img id="scream8" src="Img/8蓝车.png" style="display: none;">
+    <img id="mark0" src="Img/图层0.png" style="display: none;">
+    <img id="mark1" src="Img/图层1.png" style="display: none;">
+    <div id="bottonStart" onclick="Race()">
+        START</div>
+    <div id="bottonStop" onclick="stop()">
+        STOP</div>
+    <!--<p>Canvas:</p>-->
+    <canvas id="arena">您的浏览器不支持 HTML5 canvas 标签。</canvas>
+    <div id="ranking">
+        <h1 id="rankingHead">
+            排行榜</h1>
+        <div id="rankingList">
+            <ul>
+                <li class="rankingListItem"><i style="background-color: #cc0505;">1</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i style="background-color: #e25804;">2</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i style="background-color: #bda105;">3</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i style="background-color: #e29c04;">4</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>5</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>6</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>7</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>8</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>9</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>10</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>11</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>12</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>13</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>14</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+                <li class="rankingListItem"><i>15</i>
+                    <img src="Img/默认头像.png" />
+                    <p>
+                        摇一摇</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+	var screenfix = 20;//屏幕为1920时候为20,1366/70%时候为0;
+    if(screenfix){
+    	document.getElementById("background").style.left = "0";
+    }
+    var c, c_bg, ctx, ctx_bg, width, height;
+    var img; //默认图片
+    var rankNum = 8; //跑道数
+    var ratio = 100; //跑步系数
+    var step = 0; //步数
+    var Runners = new Array();
+    var info; //定义数据对象
+    var lineHeight; //跑道宽
+    var leftBlank = 70 - screenfix; //左留白
+    //var leftBlank = 50; 
+    var img_mark0 = document.getElementById("mark0");
+    var img_mark1 = document.getElementById("mark1");
+    var time_tick = 10; //倒计时
+    var time_Countdown;
+    var ShakeLotteryName;
+    var startLine = 100;
+    var endLine = 150;
+    var rankingWidth = 300;
+    var dynamicRace;
+    var FPS = 16;
+    var WeiXinSign = "XMJL4S";
+    var inform_xmlhttp;
+
+
+    window.onload = function () {
+        WeiXinSign = GetQueryString("WeiXinSign");
+        if (WeiXinSign == null) {
+            state = GetQueryString("state");
+            var weixinmap = new SinoWeiXinType();
+            WeiXinSign = weixinmap.get(state);
+
+
+        }
+        //参数赋值
+        c = document.getElementById("arena");
+        c_bg = document.getElementById("background");
+        c.style.left = leftBlank;
+        ctx = c.getContext("2d");
+        ctx_bg = c_bg.getContext("2d");
+        img = document.getElementById("scream1"); //默认图片
+        width = document.body.clientWidth - leftBlank - startLine - endLine - rankingWidth;
+        height = document.body.clientHeight;
+
+        //设置画布宽高
+        c.setAttribute("width", 1571);
+        c.setAttribute("height", 894);
+
+        for (var i = 0; i < rankNum; i++) {
+            Runners[i] = createRunObject(i);
+            Runners[i].draw(0);
+        }
+
+        //var IsStart = GetQueryString("IsStart");
+        ShakeLotteryName = GetQueryString("ShakeLotteryName");
+        start();
+    }
+
+    //跑马对象
+    function createRunObject(i) {
+        var runObj = new Object();
+        runObj.dynamicStep = 0;
+        runObj.dynamicGold = 0;
+        runObj.pastStep = 0;
+        runObj.img = document.getElementById("scream" + (i + 1));
+        runObj.height = 56;
+        runObj.width = 118;
+        runObj.blankWidth = 20; //留白长度
+        runObj.trailWidth = 18;
+        runObj.trailHeight = 19;
+        runObj.locationX = runObj.blankWidth - runObj.width;
+        runObj.locationY = 89 + 95 / 2 * (2 * i + 0.5); //0;
+        runObj.trailX = leftBlank - runObj.trailWidth; //runObj.locationX + runObj.trailWidth - 5;
+        runObj.trailY = runObj.locationY + runObj.height - runObj.trailHeight;
+        runObj.draw = function (step) { //绘制竞速情况
+            //runObj.locationX = runObj.locationX + width / ratio;
+            runObj.locationX = startLine - runObj.width + width / ratio * step; //根据步数来确定位置
+            runObj.pastStep = step;
+            //if (runObj.locationX >startLine + width)
+            //	runObj.locationX = runObj.blankWidth - runObj.width;
+            //clearInterval(startClick);
+            ctx.drawImage(runObj.img, runObj.locationX, runObj.locationY); //,runObj.width,runObj.height);//头像定位
+            if (runObj.locationX + runObj.width - runObj.blankWidth - runObj.blankWidth >= runObj.trailX + runObj.trailWidth - leftBlank - 20) {
+                runObj.trailX = runObj.trailX + runObj.trailWidth;
+                if (runObj.trailX > (c.width + leftBlank - runObj.trailWidth))// - runObj.trailWidth - 67))
+                    return;
+                if (i % 2 == 0) {
+                    ctx_bg.drawImage(img_mark0, runObj.trailX - 20 + screenfix, runObj.trailY);
+                    //ctx_bg.drawImage(img_mark0, runObj.trailX, runObj.trailY);
+                } else {
+                    ctx_bg.drawImage(img_mark1, runObj.trailX - 20 + screenfix, runObj.trailY);
+                    //ctx_bg.drawImage(img_mark1, runObj.trailX, runObj.trailY);
+                }
+            }
+        };
+        return runObj;
+    }
+    var flag = 0;
+    //竞速
+    function Race() {
+        //			if(flag == 1){
+        //	            clearInterval(dynamicRace);
+        //          }else{
+        //	            ctx.clearRect(0, 0, width, height);
+        //          }
+        ctx.clearRect(0, 0, 1571, 894);
+        for (var i = 0; i < rankNum; i++) {
+            Runners[i].pastStep = Runners[i].pastStep + Runners[i].dynamicStep;
+            //Runners[i].pastStep = Runners[i].dynamicGold;
+            if (Runners[i].dynamicGold > 0 && Runners[i].pastStep >= Runners[i].dynamicGold) {
+                Runners[i].pastStep = Runners[i].dynamicGold
+                //	flag = 1;
+            }
+            Runners[i].draw(Runners[i].pastStep);
+        }
+        //GetRaceDynamics();
+    }
+
+    //获取比赛动态
+    var race_xmlhttp;
+    function GetRaceDynamics() {
+        if (race_xmlhttp == null) {
+            race_xmlhttp = loadXMLDoc();
+        }
+        var clientdatime = new Date();
+        var url = "" + clientdatime.getTime() + "&ShakeLotteryName=" + ShakeLotteryName;
+        race_xmlhttp.onreadystatechange = GetRaceData;
+        race_xmlhttp.open("GET", url, true);
+        race_xmlhttp.send(null);
+    }
+    function GetRaceData() {
+        if (race_xmlhttp.readyState == 4) {// 4 = "loaded"
+            if (race_xmlhttp.status == 200) {// 200 = OK 
+                var dataset = strToJson(race_xmlhttp.responseText);
+                var info
+                var html = ""
+                var index = 0;
+                info = dataset.data[index];
+                clearInterval(dynamicRace);
+                if (info.rowCount > 0) {
+                    for (var i = 0, c = info.table.length; i < 15 && i < c; i++) {
+                        if (i < rankNum) {
+                            if (info.table[i].Num >= 100) {
+                                Runners[i].dynamicGold = 120;
+                                //Runners[i].dynamicStep = (120 - Runners[i].pastStep)/1000*FPS;
+                            } else {
+                                Runners[i].dynamicGold = info.table[i].Num;
+                                Runners[i].dynamicStep = (info.table[i].Num - Runners[i].pastStep) / 1000 * FPS;
+                            }
+                            //Runners[i].draw(info.table[i].Num);
+                            //document.getElementById("scream" + (i+1)).src = info.table[i].src;
+                            //Runners[i].img = document.getElementById("scream" + (i+1));
+                        }
+                        $('#rankingList img')[i].src = info.table[i].headimgurl;
+                        $('#rankingList p')[i].innerHTML = info.table[i].nickname;
+                    }
+                    flag = 0;
+                    dynamicRace = setInterval(Race, FPS);
+                }
+            }
+        }
+    }
+    //控制
+    var startClick;
+
+    function start() {
+        //防止重复点击
+        if (time_Countdown == undefined) {
+            time_Countdown = setInterval(Countdown, 1000);
+            //通知服务器开始倒计时
+            var url = "" + "?IsStart=" + 1 + "&ShakeLotteryName=" + ShakeLotteryName + "&WeiXinSign=" + WeiXinSign;
+            xmlhttpInform(url);
+        }
+    }
+
+    function stop() {
+        clearInterval(startClick);
+        //通知活动结束
+        var url = "" + "?IsStart=" + 0 + "&ShakeLotteryName=" + ShakeLotteryName + "&WeiXinSign=" + WeiXinSign;
+        xmlhttpInform(url);
+        window.parent.location.href = "WinnersList.html?ShakeLotteryName=" + ShakeLotteryName;
+    }
+    function Countdown() {
+        time_tick--;
+        if (time_tick == 0) {
+            document.getElementById("time_count").innerHTML = 'GO!';
+        } else {
+            document.getElementById("time_count").innerHTML = time_tick;
+        }
+        if (time_tick < 0) {
+            clearInterval(time_Countdown);
+            document.getElementById("mask").style.display = "none";
+            if (startClick == undefined)
+            //大约60HZ频率刷新竞速情况
+            //	startClick = setInterval(Race, FPS);
+                startClick = setInterval(GetRaceDynamics, 1000);
+            //	Race();
+        }
+    }
+    //建立数据请求此方法
+    function xmlhttpInform(url) {
+        if (inform_xmlhttp == null) {
+            inform_xmlhttp = loadXMLDoc();
+        }
+        //inform_xmlhttp.onreadystatechange = Inform_GetData;
+        inform_xmlhttp.open("GET", url, true);
+        inform_xmlhttp.send(null);
+    }
+    //接收数据处理
+    function Inform_GetData() {
+        if (inform_xmlhttp.readyState == 4) { // 4 = "loaded" 
+            if (inform_xmlhttp.status == 200) { // 200 = OK
+                var backInfo = strToJson(inform_xmlhttp.responseText);
+                if (backInfo.success == true) {
+
+                }
+            }
+        }
+    }
+
+</script>
+</html>

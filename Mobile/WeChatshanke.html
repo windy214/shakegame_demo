@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,user-scalable=no" />
+    <title></title>
+    <script src="../Com/Js/Com_veioo2015.js" type="text/javascript"></script>
+    <style type="text/css">
+        body, div, dl, dt, dd, ul, ol, li, form, input, button, textarea, h1, h2, h3, p, th, td, canvas
+        {
+            margin: 0;
+            padding: 0;
+        }
+        html, body
+        {
+            height: 100%;
+            overflow: hidden;
+            overflow-y: auto;
+        }
+        body
+        {
+            font-size: 62.5%;
+            width: 100%;
+            height: 100%;
+            background-image: url(img/wechat_bg.jpg);
+            background-size: cover;
+            -webkit-background-size: cover;
+        }
+        #logo img
+        {
+            display: block;
+            margin: 0 auto 0 auto;
+            width: 75%;
+        }
+        #text
+        {
+            margin-top: 8em;
+            line-height: 8.4em;
+            vertical-align: bottom;
+            text-align: center;
+            font-family: "microsoft yahei";
+        }
+        .txt
+        {
+            font-size: 7em;
+            color: #614d02;
+        }
+        .num
+        {
+            font-size: 8.4em;
+            color: #9a1705;
+        }
+        #btntosay
+        {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            border-top: 0.2em solid #ECD62F;
+            background-color: #FFFFFF;
+            font-family: "microsoft yahei";
+            color: #ECB34B;
+            height: 3.2em;
+            line-height: 3.2em;
+            font-size: 4.2em;
+            text-align: center;
+        }
+        #selection
+        {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="blank_top">
+    </div>
+    <div id="logo">
+        <img src="img/wechat_logo1.png" /></div>
+    <div id="text">
+        <span id="txtfront" class="txt">游戏还未开始,敬请期待。</span>
+        <span id="num" class="num"></span>
+        <span id="txtback" class="txt"></span>
+    </div>
+    <div id="btntosay" style="display: none;" onclick="clicktosay()">
+        点我发言</div>
+    <select id="selection" style="position: absolute; top: 0; left: 0;" onchange="sendMsg()">
+        <option value="0">——选择一条上墙吧——</option>
+        <option value="2">中秋快乐!</option>
+        <option value="1">不要抢，车模是我的</option>
+        <option value="3">给我来一打车模!</option>
+        <option value="6">奖品是我的！</option>
+        <option value="7">打个酱油~~~</option>
+        <option value="5">让你们见识下真正的手速！</option>
+        <option value="10">顶</option>
+    </select>
+    <script type="text/javascript">
+        var time_tick = 5;
+        var shakeCount = 0;
+        var shakeCountResult = 0;
+        var startTime, lastTime;
+        var xmlhttp_GetData;
+
+        var countdown;
+        var countdown_handler;
+        var countdown_xmlhttp;
+
+        var sendcount;
+        var sendcount_handler;
+        var sendcount_xmlhttp;
+
+        var sendmsg_xmlhttp;
+
+        var x = y = z = lastX = lastY = lastZ = 0;
+
+        window.onload = function () {
+
+            //布局上方留白由设备宽度决定
+            var blankTop = document.getElementById("blank_top");
+            blankTop.style.width = document.body.clientWidth + "px";
+            blankTop.style.height = Math.round(document.body.clientWidth / 750 * 140) + "px";
+            //请求数据
+            countdown_handler = setInterval(countdownRequest, 1000);
+        }
+
+        //建立数据请求
+        function countdownRequest() {
+            if (countdown_xmlhttp == null) {
+                countdown_xmlhttp = loadXMLDoc();
+            }
+            var url;
+            countdown_xmlhttp.onreadystatechange = GetCountdown;
+            countdown_xmlhttp.open("GET", url, true);
+            countdown_xmlhttp.send(null);
+        }
+        //接收数据处理
+        function GetCountdown() {
+            if (countdown_xmlhttp.readyState == 4) { // 4 = "loaded" 
+                if (countdown_xmlhttp.status == 200) { // 200 = OK     
+                    var backInfo = strToJson(countdown_xmlhttp.responseText);
+                    if (backInfo.LotteryState == 0) {//0：表示未开始
+                        document.getElementById("txtfront").innerHTML = "游戏还未开始,敬请期待。";
+                        document.getElementById("num").innerHTML = "";
+                        document.getElementById("txtback").innerHTML = "";
+                    } else if (backInfo.LotteryState == 1) {//1： 留言祝福
+                        document.getElementById("txtfront").innerHTML = "上墙冒个泡?";
+                        document.getElementById("num").innerHTML = "";
+                        document.getElementById("txtback").innerHTML = "";
+                        document.getElementById("btntosay").style.display = "block";
+                    } else if (backInfo.LotteryState == 2) {//开始摇一摇     
+                        document.getElementById("txtfront").innerHTML = "";
+                        document.getElementById("num").innerHTML = "";
+                        document.getElementById("txtback").innerHTML = "";               	
+                        document.getElementById("btntosay").style.display = "none";
+                        time_tick = backInfo.CountDownSecond;
+                        if (countdown == undefined || countdown == null || countdown == "" && time_tick <= 10) {
+                            countdown = setInterval(CountDown, 1000);
+                        }
+                    }
+                }
+            }
+        }
+
+        function CountDown() {
+            document.getElementById("txtfront").innerHTML = "游戏将在";
+            document.getElementById("num").innerHTML = time_tick;
+            document.getElementById("txtback").innerHTML = "秒后开始";
+            time_tick--;
+            if (time_tick < 3) {
+                if (time_tick <= 0) {
+                    addShakeListener();
+                    clearInterval(countdown);
+                    return;
+                }
+                clearInterval(countdown_handler);
+            }
+        }
+        
+        function addShakeListener() {
+            document.getElementById("txtfront").innerHTML = "摇了";
+            document.getElementById("txtback").innerHTML = "次";
+            startTime = new Date();
+
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', DeviceMotionListener, false);
+            }
+            sendcount = setInterval(SendCount, 1000);
+        }
+        //发送时间方法
+        function SendCount(lastTime) {
+            
+            if (sendcount_xmlhttp == null) {
+                sendcount_xmlhttp = loadXMLDoc();
+            }
+            var url;
+            sendcount_xmlhttp.onreadystatechange = GetCountResult;
+            sendcount_xmlhttp.open("GET", url, true);
+            sendcount_xmlhttp.send(null);
+        }
+        //接收数据处理
+        function GetCountResult() {
+            if (sendcount_xmlhttp.readyState == 4) { // 4 = "loaded" 
+                if (sendcount_xmlhttp.status == 200) { // 200 = OK     
+                    var backInfo = strToJson(sendcount_xmlhttp.responseText);
+                    if (backInfo.success == true) {
+
+                    }
+                }
+            }
+        }
+        function intervalLimit(x, m, n) {
+            if (m > n) {
+                if (x > m) {
+                    x = m;
+                } else if (x < n) {
+                    x = n;
+                }
+            }
+            return x;
+        }
+
+        function DeviceMotionListener() {
+            var acceleration = event.accelerationIncludingGravity;
+            var speed = 18;
+            x = intervalLimit(acceleration.x, 20, -20);
+            y = intervalLimit(acceleration.y, 20, -20);
+            z = intervalLimit(acceleration.z, 20, -20);
+
+            if (Math.abs(x - lastX) > speed || Math.abs(y - lastY) > speed) {
+                shakeCount += parseInt(1); //自加变量
+                shakeCountResult = Math.floor(shakeCount / 3)
+                document.getElementById("num").innerHTML = shakeCountResult;
+                if (shakeCountResult == 100) {
+                    lastTime = new Date() - startTime;
+                    //发送时间
+                    SendCount(lastTime);
+                    clearInterval(sendcount);
+                    window.removeEventListener('devicemotion', DeviceMotionListener, false);
+                }
+            }
+            lastX = x;
+            lastY = y;
+        }
+
+        function clicktosay() {
+
+            var element = document.getElementById("selection"), worked = false;
+            if (document.createEvent) {
+                var e = document.createEvent("MouseEvents");
+                e.initMouseEvent("mousedown", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                worked = element.dispatchEvent(e);
+            }
+            else if (element.fireEvent) {
+                worked = element.fireEvent("onmousedown");
+            }
+            if (!worked) {
+                showTip("It didn't work in your browser.",5);
+            }
+        }
+
+        function sendMsg() {
+            var selection = document.getElementById("selection");
+            var eleIndex = selection.selectedIndex;
+            var eleValue = selection.options[eleIndex].value;
+            if (eleIndex != null && eleValue != 0) {
+                var eleText = selection.options[eleIndex].text;
+                
+                if (sendmsg_xmlhttp == null) {
+                    sendmsg_xmlhttp = loadXMLDoc();
+                }
+                var url;
+                sendmsg_xmlhttp.onreadystatechange = GetMsgResult;
+                sendmsg_xmlhttp.open("GET", url, true);
+                sendmsg_xmlhttp.send(null);
+                selection.options[0].selected = true; //重置选中项保证onchange事件触发
+            }
+        }
+
+        //接收数据处理
+        function GetMsgResult() {
+            if (sendmsg_xmlhttp.readyState == 4) { // 4 = "loaded" 
+                if (sendmsg_xmlhttp.status == 200) { // 200 = OK     
+                    var backInfo = strToJson(sendmsg_xmlhttp.responseText);
+                    if (backInfo.success == "success") {
+                        var _this = showTip('到大屏幕寻找你的足迹吧!', 2); //
+                        _this.style.fontSize = "4em";
+                        _this.style.top = (document.documentElement.clientHeight / 2 - _this.offsetHeight / 2) + 'px';
+                        _this.style.left = (document.documentElement.clientWidth / 2 - _this.offsetWidth / 2) + 'px';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="../Com/Js/Com_veioo2015.js" type="text/javascript"></script>
+    <style type="text/css">
+        body, div, dl, dt, dd, ul, ol, li, form, input, button, textarea, h1, h2, h3, p, th, td, canvas
+        {
+            margin: 0;
+            padding: 0;
+        }
+        html, body
+        {
+            height: 100%;
+            overflow: hidden;
+            overflow-y: auto;
+        }
+        body
+        {
+            width: 100%;
+            height: 100%;
+            background-size:cover;
+            background-image: url(Img/winnerslist_bg.jpg);
+        }
+        h1
+        {
+            font-family: "微软雅黑";
+            font-size: 45px;
+            color: #FFFFFF;
+            margin-top: 52px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        #WinnersList_mask
+        {
+            margin: 45px auto 0 auto;
+            width: 1260px;
+            height: 620px;
+            overflow: hidden;
+        }
+        #WinnersList_container
+        {
+            width: 1290px;
+        }
+        .list_column
+        {
+            margin-right: 30px;
+            width: 400px;
+            height: 620px;
+            float: left;
+        }
+        .list_item
+        {
+            /*margin-right: 30px;
+				float: left;
+				list-style: none;*/
+            margin-bottom: 20px;
+            width: 400px;
+            height: 60px;
+            background-color: #FFFFFF;
+            /*overflow:hidden;*/
+        }
+        .list_item i
+        {
+            display: block;
+            float: left;
+            margin-top: 15px;
+            margin-left: 28px;
+            box-sizing: border-box;
+            width: 30px;
+            height: 30px;
+            background-color: #e2e4e4;
+            border-radius: 15px;
+            -moz-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            line-height: 30px;
+            text-align: center;
+            font-family: "黑体";
+            font-size: 18px;
+            color: #000000;
+            font-style: normal;
+        }
+        
+        .list_item img
+        {
+            box-sizing: border-box;
+            float: left;
+            margin-left: 20px;
+            margin-top: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            background-color: #2f84cf;
+        }
+        
+        .list_item p
+        {
+            display: block;
+            float: left;
+            margin-left: 20px;
+            font-family: "微软雅黑";
+            font-size: 30px;
+            color: #043a54;
+            line-height: 60px;
+            width:262px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .list_item .i1
+        {
+            background-color: #e20404;
+            color: #FFFFFF;
+        }
+        .list_item .i2
+        {
+            background-color: #e25804;
+            color: #FFFFFF;
+        }
+        .list_item .i3
+        {
+            background-color: #e29c04;
+            color: #FFFFFF;
+        }
+        .list_item .i4
+        {
+            background-color: #e4cb40;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        中奖名单</h1>
+    <div id="WinnersList_mask">
+        <div id="WinnersList_container">
+            <div class="list_column">
+            </div>
+            <div class="list_column">
+            </div>
+            <div class="list_column">
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var race_xmlhttp;
+        var ShakeLotteryName;
+        var containerTop = 620;
+        window.onload = function () {
+            ShakeLotteryName = GetQueryString("ShakeLotteryName");
+            GetRaceDynamics()
+        }
+        //获取比赛动态
+        function GetRaceDynamics() {
+            if (race_xmlhttp == null) {
+                race_xmlhttp = loadXMLDoc();
+            }
+            var clientdatime = new Date();
+            var url = "" + clientdatime.getTime() + "&ShakeLotteryName=" + ShakeLotteryName;
+            race_xmlhttp.onreadystatechange = GetRaceData;
+            race_xmlhttp.open("GET", url, true);
+            race_xmlhttp.send(null);
+        }
+        function GetRaceData() {
+            if (race_xmlhttp.readyState == 4) {// 4 = "loaded"
+                if (race_xmlhttp.status == 200) {// 200 = OK 
+                    var dataset = strToJson(race_xmlhttp.responseText);
+                    var info
+                    var html = ""
+                    var index = 0;
+                    info = dataset.data[index];
+                    if (info.rowCount > 0) {
+                        document.getElementById("WinnersList_container").style.marginTop = containerTop + "px";
+                        for (var i = 0, j = 0, c = info.table.length; i < 15 && i < c; i++) {
+                            var str = "";
+                            str = str + '<div id=item"' + i + '" class="list_item">';
+                            if (i < 4) {
+                                var n = i + 1;
+                                str = str + "<i class=i" + n + ">" + n + "</i>";
+                            } else {
+                                str = str + "<i>" + (i + 1) + "</i>";
+                            }
+                            str = str + "<img src='" + info.table[i].headimgurl + "'/>";
+                            str = str + "<p>" + info.table[i].nickname; +"</p>";
+                            $('.list_column')[j].innerHTML = $('.list_column')[j].innerHTML + str;
+                            j = (j + 1) % 3;
+                        }
+                        var moveContainer = setInterval(function () {
+                            containerTop--;
+                            document.getElementById("WinnersList_container").style.marginTop = containerTop + "px";
+                            if (containerTop <= 0)
+                                clearInterval(moveContainer);
+                        }, 16)
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
