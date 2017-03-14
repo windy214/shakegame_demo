@@ -5,6 +5,7 @@
     <meta name="viewport" content="maximum-scale=1.0,user-scalable=no" />
     <title></title>
     <script src="../Com/Js/Com_veioo2015.js" type="text/javascript"></script>
+    <script src="../Com/Js/mock-min.js" type="text/javascript"></script>
     <style type="text/css">
         body, div, dl, dt, dd, ul, ol, li, form, input, button, textarea, h1, h2, h3, p, th, td, canvas
         {
@@ -121,12 +122,47 @@
             countdown_handler = setInterval(countdownRequest, 1000);
         }
 
+        //拦截数据请求返回模拟数据
+        Mock.mock('m/mockdata/countdown',{
+            'LotteryState':function(){
+                var s = new Date().getSeconds();
+                if (s>50) {
+                    return 0;
+                } else if(s>30){
+                   return 2;
+                }else if(s>10){
+                    return 1;
+                }
+            },
+            'CountDownSecond':function(){
+                var s = new Date().getSeconds();
+                var cds = 10 - s + 30;
+                if(cds>=0&&cds<=10){
+                    return Math.round(cds);
+                }else{
+                    return -1;
+                }
+            }
+        });
+        Mock.mock('m/mockdata/userscore', {
+            'success': 'success', 
+            'LotteryState': function () {
+                var s = new Date().getSeconds();
+                if (s > 50) { 
+                    return 0;
+                }
+            }
+        });
+        Mock.mock('m/mockdata/usermsg',{
+            'success': 'success'
+        });
+
         //建立数据请求
         function countdownRequest() {
             if (countdown_xmlhttp == null) {
                 countdown_xmlhttp = loadXMLDoc();
             }
-            var url;
+            var url='m/mockdata/countdown';
             countdown_xmlhttp.onreadystatechange = GetCountdown;
             countdown_xmlhttp.open("GET", url, true);
             countdown_xmlhttp.send(null);
@@ -145,13 +181,14 @@
                         document.getElementById("num").innerHTML = "";
                         document.getElementById("txtback").innerHTML = "";
                         document.getElementById("btntosay").style.display = "block";
-                    } else if (backInfo.LotteryState == 2) {//开始摇一摇     
-                        document.getElementById("txtfront").innerHTML = "";
-                        document.getElementById("num").innerHTML = "";
-                        document.getElementById("txtback").innerHTML = "";               	
+                    } else if (backInfo.LotteryState == 2) {//开始摇一摇
                         document.getElementById("btntosay").style.display = "none";
                         time_tick = backInfo.CountDownSecond;
-                        if (countdown == undefined || countdown == null || countdown == "" && time_tick <= 10) {
+                        if(time_tick == -1){
+                            document.getElementById("txtfront").innerHTML = "游戏正在进行,请等待下期。";
+                            document.getElementById("num").innerHTML = "";
+                            document.getElementById("txtback").innerHTML = "";
+                        }else if (countdown == undefined || countdown == null || countdown == "" && time_tick <= 10) {
                             countdown = setInterval(CountDown, 1000);
                         }
                     }
@@ -163,7 +200,6 @@
             document.getElementById("txtfront").innerHTML = "游戏将在";
             document.getElementById("num").innerHTML = time_tick;
             document.getElementById("txtback").innerHTML = "秒后开始";
-            time_tick--;
             if (time_tick < 3) {
                 if (time_tick <= 0) {
                     addShakeListener();
@@ -171,7 +207,8 @@
                     return;
                 }
                 clearInterval(countdown_handler);
-            }
+                time_tick--;
+            } 
         }
         
         function addShakeListener() {
@@ -190,7 +227,7 @@
             if (sendcount_xmlhttp == null) {
                 sendcount_xmlhttp = loadXMLDoc();
             }
-            var url;
+            var url = 'm/mockdata/userscore';//shakeCountResult + lastTime
             sendcount_xmlhttp.onreadystatechange = GetCountResult;
             sendcount_xmlhttp.open("GET", url, true);
             sendcount_xmlhttp.send(null);
@@ -200,8 +237,10 @@
             if (sendcount_xmlhttp.readyState == 4) { // 4 = "loaded" 
                 if (sendcount_xmlhttp.status == 200) { // 200 = OK     
                     var backInfo = strToJson(sendcount_xmlhttp.responseText);
-                    if (backInfo.success == true) {
-
+                    if (backInfo.success == 'success') {
+                        if(backInfo.LotteryState == 0){
+                            countdown_handler = setInterval(countdownRequest, 1000);
+                        }
                     }
                 }
             }
@@ -266,7 +305,7 @@
                 if (sendmsg_xmlhttp == null) {
                     sendmsg_xmlhttp = loadXMLDoc();
                 }
-                var url;
+                var url = 'm/mockdata/usermsg';
                 sendmsg_xmlhttp.onreadystatechange = GetMsgResult;
                 sendmsg_xmlhttp.open("GET", url, true);
                 sendmsg_xmlhttp.send(null);

@@ -5,6 +5,7 @@
     <title></title>
     <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
     <script src="../Com/Js/Com_veioo2015.js" type="text/javascript"></script>
+    <script src="../Com/Js/mock-min.js" type="text/javascript"></script>
     <style type="text/css">
         body, div, dl, dt, dd, ul, ol, li, form, input, button, textarea, p, th, td, canvas
         {
@@ -97,17 +98,46 @@
     <div id="background">
     </div>
     <div id="title">
-        <p>江铃4S店摇一摇</p>
+        <p>4S店摇一摇</p>
         <img src="Img/摇一摇图标.png" />
     </div>
     <div id="btn_start" onclick="StartShakeGame()">
     </div>
     <div id="textarea">
-    </div><script type="text/javascript">
+    </div>
+    <script type="text/javascript">
         var ShakeLotteryName = "";
         var WeiXinSign = 'XMJL4S';
         var getreport_xmlhttp;
         var getmsg_xmlhttp;
+        //模拟数据
+        Mock.mock(/p\/mockdata\/msgtoshow/,{
+            'data|0-3':[{
+                'headimgurl' : 'Img/默认头像.png',
+                'nickname' : 'one',
+                'WXContent' : '我是一号测试语句'
+            },{
+                'headimgurl' : 'Img/默认头像.png',
+                'nickname' : 'oen',
+                'WXContent' : '二号测试'
+            },{
+                'headimgurl' : 'Img/默认头像.png',
+                'nickname' : 'noe',
+                'WXContent' : '三号测试橘'
+            },{
+                'headimgurl' : 'Img/默认头像.png',
+                'nickname' : 'neo',
+                'WXContent' : '饿了吃橘子'
+            }]
+        });
+        Mock.mock(/p\/mockdata\/ShakeLotteryName/,{
+            'result':'success',
+            'dataType':'ShakeLottery',
+            'ShakeLotteryName' : function(){
+                return new Date().getTime().toString();
+            }
+        })
+
         window.onload = function () {
             CreateNewShakeLottery();
             setInterval(GetMsg, 1000);
@@ -117,7 +147,7 @@
                 getreport_xmlhttp = loadXMLDoc();
             }
             var clientdatime = new Date();
-            var url = "" + clientdatime.getTime() + "&WeiXinSign=" + WeiXinSign;
+            var url = "p/mockdata/ShakeLotteryName";// + clientdatime.getTime() + "&WeiXinSign=" + WeiXinSign;
             getreport_xmlhttp.onreadystatechange = GetReportBack;
             getreport_xmlhttp.open("GET", url, true);
             getreport_xmlhttp.send(null);
@@ -147,7 +177,7 @@
                 getmsg_xmlhttp = loadXMLDoc();
             }
             var clientdatime = new Date();
-            var url = "" + clientdatime.getTime() + "&ShakeLotteryName=" + ShakeLotteryName;
+            var url = "p/mockdata/msgtoshow?clientdatime" + clientdatime.getTime() + "&ShakeLotteryName=" + ShakeLotteryName;
             getmsg_xmlhttp.onreadystatechange = GetMsgBack;
             getmsg_xmlhttp.open("GET", url, true);
             getmsg_xmlhttp.send(null);
@@ -160,7 +190,7 @@
                     var backInfo = strToJson(getmsg_xmlhttp.responseText);
                     if (backInfo.data.length < 1)
                         return;
-                    var msgs = backInfo.data[0].table;
+                    var msgs = backInfo.data;//[0].table;
                     for (var i = 0, c = msgs.length; i < c; i++) {
                         var msg_item = null;
                         if (!msg_item) {

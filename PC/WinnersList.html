@@ -5,6 +5,7 @@
     <title></title>
     <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
     <script src="../Com/Js/Com_veioo2015.js" type="text/javascript"></script>
+    <script src="../Com/Js/mock-min.js" type="text/javascript"></script>
     <style type="text/css">
         body, div, dl, dt, dd, ul, ol, li, form, input, button, textarea, h1, h2, h3, p, th, td, canvas
         {
@@ -152,6 +153,15 @@
         var race_xmlhttp;
         var ShakeLotteryName;
         var containerTop = 620;
+        
+        //模拟数据
+        Mock.mock(/p\/mockdata\/rank/,{
+            'data|15':[{
+                'headimgurl' : 'Img/默认头像.png',
+                'nickname' : '@name'
+            }]
+        });
+
         window.onload = function () {
             ShakeLotteryName = GetQueryString("ShakeLotteryName");
             GetRaceDynamics()
@@ -162,7 +172,7 @@
                 race_xmlhttp = loadXMLDoc();
             }
             var clientdatime = new Date();
-            var url = "" + clientdatime.getTime() + "&ShakeLotteryName=" + ShakeLotteryName;
+            var url = "p/mockdata/rank?clienttime=" + clientdatime.getTime() + "&ShakeLotteryName=" + ShakeLotteryName;
             race_xmlhttp.onreadystatechange = GetRaceData;
             race_xmlhttp.open("GET", url, true);
             race_xmlhttp.send(null);
@@ -174,20 +184,20 @@
                     var info
                     var html = ""
                     var index = 0;
-                    info = dataset.data[index];
-                    if (info.rowCount > 0) {
+                    info = dataset.data;
+                    if (info.length > 0) {
                         document.getElementById("WinnersList_container").style.marginTop = containerTop + "px";
-                        for (var i = 0, j = 0, c = info.table.length; i < 15 && i < c; i++) {
+                        for (var i = 0, j = 0, c = info.length; i < 15 && i < c; i++) {
                             var str = "";
                             str = str + '<div id=item"' + i + '" class="list_item">';
-                            if (i < 4) {
+                            if (i < 3) {
                                 var n = i + 1;
                                 str = str + "<i class=i" + n + ">" + n + "</i>";
                             } else {
                                 str = str + "<i>" + (i + 1) + "</i>";
                             }
-                            str = str + "<img src='" + info.table[i].headimgurl + "'/>";
-                            str = str + "<p>" + info.table[i].nickname; +"</p>";
+                            str = str + "<img src='" + info[i].headimgurl + "'/>";
+                            str = str + "<p>" + info[i].nickname; +"</p>";
                             $('.list_column')[j].innerHTML = $('.list_column')[j].innerHTML + str;
                             j = (j + 1) % 3;
                         }

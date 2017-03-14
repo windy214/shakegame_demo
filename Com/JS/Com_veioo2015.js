@@ -63,5 +63,5 @@ function showTip(text, second) {
     setTimeout(function disappear() {
         tip.style.display = 'none';
     }, second * 1000);
-
+    return tip;
 }
